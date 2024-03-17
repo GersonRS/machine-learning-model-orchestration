@@ -53,8 +53,8 @@ variable "user_map" {
   }))
   default = {
     modern-gitopsadmin = {
-      username   = "modern-gitopsadmin"
-      email      = "modern-gitopsadmin@modern-gitops-stack.io"
+      username   = "moderngitopsadmin"
+      email      = "moderngitopsadmin@modern-gitops-stack.io"
       first_name = "Administrator"
       last_name  = "Modern GitOps Stack"
     }

@@ -5187,6 +5187,8 @@ data:
       selector:
         app: nonprofit
 
+  {{ .Values.domain }}: ""
+
 ---
 # Copyright 2020 The Knative Authors
 #
@@ -7228,3 +7230,4 @@ metadata:
 # The data is populated at install time.
 
 ---
+

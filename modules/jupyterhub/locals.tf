@@ -1,4 +1,7 @@
 locals {
+  domain      = format("jupyterhub.%s", trimprefix("${var.subdomain}.${var.base_domain}", "."))
+  domain_full = format("jupyterhub.%s.%s", trimprefix("${var.subdomain}.${var.cluster_name}", "."), var.base_domain)
+
   helm_values = [{
     jupyterhub = {
       proxy = {
@@ -15,7 +18,7 @@ locals {
             login_service      = "keycloak"
             client_id          = "${var.oidc.client_id}"
             client_secret      = "${var.oidc.client_secret}"
-            oauth_callback_url = "https://jupyterhub.apps.${var.cluster_name}.${var.base_domain}/hub/oauth_callback"
+            oauth_callback_url = "https://${local.domain_full}/hub/oauth_callback"
             authorize_url      = "${var.oidc.oauth_url}"
             token_url          = "${var.oidc.token_url}"
             userdata_url       = "${var.oidc.api_url}"
@@ -150,16 +153,19 @@ locals {
         annotations = {
           "cert-manager.io/cluster-issuer"                   = "${var.cluster_issuer}"
           "traefik.ingress.kubernetes.io/router.entrypoints" = "websecure"
-          "traefik.ingress.kubernetes.io/router.middlewares" = "traefik-withclustername@kubernetescrd"
           "traefik.ingress.kubernetes.io/router.tls"         = "true"
-          "ingress.kubernetes.io/ssl-redirect"               = "true"
-          "kubernetes.io/ingress.allow-http"                 = "false"
         }
         ingressClassName = "traefik"
-        hosts            = ["jupyterhub.apps.${var.base_domain}", "jupyterhub.apps.${var.cluster_name}.${var.base_domain}"]
+        hosts = [
+          local.domain,
+          local.domain_full
+        ]
         tls = [{
-          hosts      = ["jupyterhub.apps.${var.base_domain}", "jupyterhub.apps.${var.cluster_name}.${var.base_domain}"]
           secretName = "jupyterhub-ingres-tls"
+          hosts = [
+            local.domain,
+            local.domain_full
+          ]
         }]
       }
       cull = {

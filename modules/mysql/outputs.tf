@@ -16,7 +16,7 @@ output "cluster_ip" {
   value       = data.kubernetes_service.mysql.spec[0].cluster_ip
 }
 
-output "endpoint" {
-  description = "mysql endpoint external"
-  value       = "https://mysql.apps.${var.cluster_name}.${var.base_domain}"
+output "external_ip" {
+  description = "Mysql External IPs"
+  value       = data.kubernetes_service.mysql.status[0].load_balancer[0].ingress[0].ip
 }

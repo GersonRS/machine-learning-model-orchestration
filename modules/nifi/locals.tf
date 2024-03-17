@@ -1,4 +1,7 @@
 locals {
+  domain      = format("nifi.%s", trimprefix("${var.subdomain}.${var.base_domain}", "."))
+  domain_full = format("nifi.%s.%s", trimprefix("${var.subdomain}.${var.cluster_name}", "."), var.base_domain)
+
   helm_values = [{
     nifi = {
       prometheus = {
@@ -7,6 +10,7 @@ locals {
         }
       }
       oidc = {
+        enabled       = true
         url           = "${var.oidc.issuer_url}/.well-known/openid-configuration"
         client_id     = "${var.oidc.client_id}"
         client_secret = "${var.oidc.client_secret}"
@@ -16,26 +20,23 @@ locals {
         annotations = {
           "cert-manager.io/cluster-issuer"                   = "${var.cluster_issuer}"
           "traefik.ingress.kubernetes.io/router.entrypoints" = "websecure"
-          "traefik.ingress.kubernetes.io/router.middlewares" = "traefik-withclustername@kubernetescrd"
           "traefik.ingress.kubernetes.io/router.tls"         = "true"
-          "ingress.kubernetes.io/ssl-redirect"               = "true"
-          "kubernetes.io/ingress.allow-http"                 = "false"
         }
         hosts = [
           {
-            host = "nifi.apps.${var.base_domain}"
+            host = local.domain
             path = "/nifi"
           },
           {
-            host = "nifi.apps.${var.cluster_name}.${var.base_domain}"
+            host = local.domain_full
             path = "/nifi"
           },
         ]
         tls = [{
           secretName = "nifi-tls"
           hosts = [
-            "nifi.apps.${var.base_domain}",
-            "nifi.apps.${var.cluster_name}.${var.base_domain}"
+            local.domain,
+            local.domain_full,
           ]
         }]
       }

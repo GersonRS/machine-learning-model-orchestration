@@ -1,4 +1,7 @@
 locals {
+  domain      = format("vault.%s", trimprefix("${var.subdomain}.${var.base_domain}", "."))
+  domain_full = format("vault.%s.%s", trimprefix("${var.subdomain}.${var.cluster_name}", "."), var.base_domain)
+
   helm_values = [{
     vault = {
       # ui = {
@@ -11,24 +14,22 @@ locals {
           annotations = {
             "cert-manager.io/cluster-issuer"                   = "${var.cluster_issuer}"
             "traefik.ingress.kubernetes.io/router.entrypoints" = "websecure"
-            "traefik.ingress.kubernetes.io/router.middlewares" = "traefik-withclustername@kubernetescrd"
             "traefik.ingress.kubernetes.io/router.tls"         = "true"
-            "ingress.kubernetes.io/ssl-redirect"               = "true"
-            "kubernetes.io/ingress.allow-http"                 = "false"
           }
           ingressClassName = "traefik"
           hosts = [
             {
-              host = "vault.apps.${var.base_domain}"
+              host = local.domain
             },
             {
-              host = "vault.apps.${var.cluster_name}.${var.base_domain}"
+              host = local.domain_full
             }
           ]
           tls = [{
             secretName = "vault-ingres-tls"
             hosts = [
-              "vault.apps.${var.cluster_name}.${var.base_domain}"
+              local.domain,
+              local.domain_full,
             ]
           }]
         }

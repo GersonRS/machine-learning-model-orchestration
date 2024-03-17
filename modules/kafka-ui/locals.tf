@@ -1,4 +1,7 @@
 locals {
+  domain      = format("kafka-ui.%s", trimprefix("${var.subdomain}.${var.base_domain}", "."))
+  domain_full = format("kafka-ui.%s.%s", trimprefix("${var.subdomain}.${var.cluster_name}", "."), var.base_domain)
+
   helm_values = [{
     kafka-ui = {
       yamlApplicationConfig = {
@@ -44,12 +47,9 @@ locals {
         annotations = {
           "cert-manager.io/cluster-issuer"                   = "${var.cluster_issuer}"
           "traefik.ingress.kubernetes.io/router.entrypoints" = "websecure"
-          "traefik.ingress.kubernetes.io/router.middlewares" = "traefik-withclustername@kubernetescrd"
           "traefik.ingress.kubernetes.io/router.tls"         = "true"
-          "ingress.kubernetes.io/ssl-redirect"               = "true"
-          "kubernetes.io/ingress.allow-http"                 = "false"
         }
-        host = "kafka-ui.apps.${var.cluster_name}.${var.base_domain}"
+        host = locals.domain_full
         # -- Ingress tls configuration for https access
         tls = {
           enabled    = true

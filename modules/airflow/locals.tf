@@ -1,4 +1,7 @@
 locals {
+  domain      = format("mlflow.%s", trimprefix("${var.subdomain}.${var.base_domain}", "."))
+  domain_full = format("mlflow.%s.%s", trimprefix("${var.subdomain}.${var.cluster_name}", "."), var.base_domain)
+
   mlflow = var.mlflow != null ? base64encode("http://${var.mlflow.endpoint}:5000/?__extra__=%7B%7D") : base64encode("http://localhost:5000")
   secret = [
     {
@@ -75,13 +78,10 @@ locals {
           annotations = {
             "cert-manager.io/cluster-issuer"                   = "${var.cluster_issuer}"
             "traefik.ingress.kubernetes.io/router.entrypoints" = "websecure"
-            "traefik.ingress.kubernetes.io/router.middlewares" = "traefik-withclustername@kubernetescrd"
             "traefik.ingress.kubernetes.io/router.tls"         = "true"
-            "ingress.kubernetes.io/ssl-redirect"               = "true"
-            "kubernetes.io/ingress.allow-http"                 = "false"
           }
           hosts = [{
-            name = "airflow.apps.${var.cluster_name}.${var.base_domain}"
+            name = local.domain_full
             tls = {
               enabled    = true
               secretName = "airflow-tls-ingress"

@@ -1,4 +1,7 @@
 locals {
+  domain      = format("mlflow.%s", trimprefix("${var.subdomain}.${var.base_domain}", "."))
+  domain_full = format("mlflow.%s.%s", trimprefix("${var.subdomain}.${var.cluster_name}", "."), var.base_domain)
+
   rails = [{
     provider              = "AWS"
     region                = "us-east-1"
@@ -24,9 +27,9 @@ locals {
   provider = [{
     name = local.provider_name
     args = {
-      assertion_consumer_service_url = "https://gitlab.apps.${var.cluster_name}.${var.base_domain}/users/auth/saml/callback"
+      assertion_consumer_service_url = "https://${local.domain_full}/users/auth/saml/callback"
       idp_cert_fingerprint           = var.oidc.fingerprint
-      idp_sso_target_url             = "https://keycloak.apps.${var.cluster_name}.${var.base_domain}/realms/modern-gitops-stack/protocol/saml/clients/gitlab"
+      idp_sso_target_url             = "https://keycloak.${trimprefix("${var.subdomain}.${var.cluster_name}", ".")}.${var.base_domain}/realms/modern-gitops-stack/protocol/saml/clients/gitlab"
       issuer                         = "gitlab"
       name_identifier_format         = "urn:oasis:names:tc:SAML:2.0:nameid-format:persistent"
       attribute_statements : { username : ["username"] }
@@ -65,10 +68,7 @@ locals {
           annotations = {
             "cert-manager.io/cluster-issuer"                   = "${var.cluster_issuer}"
             "traefik.ingress.kubernetes.io/router.entrypoints" = "websecure"
-            "traefik.ingress.kubernetes.io/router.middlewares" = "traefik-withclustername@kubernetescrd"
             "traefik.ingress.kubernetes.io/router.tls"         = "true"
-            "ingress.kubernetes.io/ssl-redirect"               = "true"
-            "kubernetes.io/ingress.allow-http"                 = "false"
           }
           tls = {
             enabled    = true
@@ -76,7 +76,7 @@ locals {
           }
         }
         hosts = {
-          domain     = "apps.${var.cluster_name}.${var.base_domain}"
+          domain     = format("%s.%s", trimprefix("${var.subdomain}.${var.cluster_name}", "."), var.base_domain)
           externalIP = replace(split(".", var.base_domain)[0], "-", ".")
         }
         minio = {

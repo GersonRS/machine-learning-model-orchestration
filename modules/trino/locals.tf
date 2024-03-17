@@ -1,4 +1,7 @@
 locals {
+  domain      = format("trino.%s", trimprefix("${var.subdomain}.${var.base_domain}", "."))
+  domain_full = format("trino.%s.%s", trimprefix("${var.subdomain}.${var.cluster_name}", "."), var.base_domain)
+
   helm_values = [{
     trino = {
       service = {
@@ -27,21 +30,18 @@ locals {
         annotations = {
           "cert-manager.io/cluster-issuer"                   = "${var.cluster_issuer}"
           "traefik.ingress.kubernetes.io/router.entrypoints" = "websecure"
-          "traefik.ingress.kubernetes.io/router.middlewares" = "traefik-withclustername@kubernetescrd"
           "traefik.ingress.kubernetes.io/router.tls"         = "true"
-          "ingress.kubernetes.io/ssl-redirect"               = "true"
-          "kubernetes.io/ingress.allow-http"                 = "false"
         }
         hosts = [
           {
-            host = "trino.apps.${var.base_domain}"
+            host = local.domain
             paths = [{
               path     = "/"
               pathType = "ImplementationSpecific"
             }]
           },
           {
-            host = "trino.apps.${var.cluster_name}.${var.base_domain}"
+            host = local.domain_full
             paths = [{
               path     = "/"
               pathType = "ImplementationSpecific"
@@ -52,7 +52,8 @@ locals {
         tls = [{
           secretName = "trino-ingres-tls"
           hosts = [
-            "trino.apps.${var.cluster_name}.${var.base_domain}"
+            local.domain,
+            local.domain_full
           ]
         }]
       }

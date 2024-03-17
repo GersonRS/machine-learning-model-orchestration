@@ -1,4 +1,7 @@
 locals {
+  domain      = format("pinot.%s", trimprefix("${var.subdomain}.${var.base_domain}", "."))
+  domain_full = format("pinot.%s.%s", trimprefix("${var.subdomain}.${var.cluster_name}", "."), var.base_domain)
+
   helm_values = [{
     pinot = {
       controller = {
@@ -12,20 +15,18 @@ locals {
             annotations = {
               "cert-manager.io/cluster-issuer"                   = "${var.cluster_issuer}"
               "traefik.ingress.kubernetes.io/router.entrypoints" = "websecure"
-              "traefik.ingress.kubernetes.io/router.middlewares" = "traefik-withclustername@kubernetescrd"
               "traefik.ingress.kubernetes.io/router.tls"         = "true"
-              "ingress.kubernetes.io/ssl-redirect"               = "true"
-              "kubernetes.io/ingress.allow-http"                 = "false"
             }
             hosts = [
-              "pinot.apps.${var.base_domain}",
-              "pinot.apps.${var.cluster_name}.${var.base_domain}"
+              local.domain,
+              local.domain_full,
             ]
             # -- Ingress tls configuration for https access
             tls = [{
               secretName = "pinot-ingres-tls"
               hosts = [
-                "pinot.apps.${var.cluster_name}.${var.base_domain}"
+                local.domain,
+                local.domain_full
               ]
             }]
           }
