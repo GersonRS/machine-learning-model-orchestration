@@ -1,0 +1,9 @@
+apiVersion: v2
+dependencies:
+  - name: gateway
+    repository: https://istio-release.storage.googleapis.com/charts
+    version: "*.*.*"
+description: |
+  This chart installs istio
+name: istio
+version: "0"

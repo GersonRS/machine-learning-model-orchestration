@@ -5,7 +5,7 @@
 *** Thank you again! Now let's run this amazing project : D
 -->
 
-# Modern GitOps Stack
+# Machine Learning Model Orchestration
 
 <!-- PROJECT SHIELDS -->
 
