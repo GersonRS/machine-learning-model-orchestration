@@ -3,14 +3,14 @@ resource "null_resource" "dependencies" {
 }
 
 resource "keycloak_realm" "modern_gitops_stack" {
-  realm                    = "modern-gitops-stack"
-  display_name             = "Modern gitops Stack"
-  display_name_html        = "<img width='200px' src='https://raw.githubusercontent.com/GersonRS/modern-gitops-stack/main/.github/assets/images/logo.png' alt='Modern gitops Stack Logo'/>"
-  login_with_email_allowed = true
-
-  access_code_lifespan = "1h"
-  ssl_required         = "external"
-  password_policy      = "upperCase(1) and length(8) and forceExpiredPasswordChange(365) and notUsername"
+  realm                       = "modern-gitops-stack"
+  display_name                = "Modern GitOps Stack"
+  display_name_html           = "<img width='200px' src='https://raw.githubusercontent.com/GersonRS/credit-risk-analysis-with-machine-learning/main/.github/assets/images/logo.png' alt='Modern GitOps Stack Logo'/>"
+  login_with_email_allowed    = true
+  default_signature_algorithm = "RS256"
+  access_code_lifespan        = "1h"
+  ssl_required                = "external"
+  password_policy             = "upperCase(1) and length(8) and forceExpiredPasswordChange(365) and notUsername"
   attributes = {
     terraform = "true"
   }
@@ -36,6 +36,49 @@ resource "keycloak_openid_client" "modern_gitops_stack" {
   valid_redirect_uris          = var.oidc_redirect_uris
 }
 
+resource "keycloak_saml_client" "gitlab" {
+  realm_id                      = resource.keycloak_realm.modern_gitops_stack.id
+  name                          = "Gitlab"
+  client_id                     = "gitlab"
+  description                   = "Gitlab integration with keycloak"
+  force_name_id_format          = true
+  canonicalization_method       = "EXCLUSIVE"
+  client_signature_required     = true
+  enabled                       = true
+  encrypt_assertions            = false
+  force_post_binding            = true
+  front_channel_logout          = true
+  full_scope_allowed            = true
+  include_authn_statement       = true
+  name_id_format                = "persistent"
+  sign_assertions               = true
+  sign_documents                = true
+  signature_key_name            = "KEY_ID"
+  signature_algorithm           = "RSA_SHA256"
+  root_url                      = "https://gitlab.apps.${var.cluster_name}.${var.base_domain}"
+  master_saml_processing_url    = "https://gitlab.apps.${var.cluster_name}.${var.base_domain}/users/auth/saml/callback"
+  login_theme                   = "keycloak"
+  idp_initiated_sso_url_name    = "gitlab"
+  idp_initiated_sso_relay_state = "gitlab.apps.${var.cluster_name}.${var.base_domain}"
+  valid_redirect_uris = [
+    "https://gitlab.apps.${var.cluster_name}.${var.base_domain}/*",
+    "https://gitlab.apps.${var.cluster_name}.${var.base_domain}/users/auth/saml/callback",
+  ]
+}
+
+resource "keycloak_role" "gitlab_role_external" {
+  client_id   = resource.keycloak_saml_client.gitlab.id
+  realm_id    = resource.keycloak_realm.modern_gitops_stack.id
+  name        = "gitlab:external"
+  description = "gitlab:external"
+}
+resource "keycloak_role" "gitlab_role_access" {
+  client_id   = resource.keycloak_saml_client.gitlab.id
+  realm_id    = resource.keycloak_realm.modern_gitops_stack.id
+  name        = "gitlab:access"
+  description = "gitlab:access"
+}
+
 resource "keycloak_openid_client_scope" "modern_gitops_stack_groups" {
   realm_id               = resource.keycloak_realm.modern_gitops_stack.id
   name                   = "groups"
@@ -49,6 +92,80 @@ resource "keycloak_openid_client_scope" "modern_gitops_stack_minio_policy" {
   description            = "OpenID Connect scope to map MinIO access policy to a claim"
   include_in_token_scope = true
 }
+
+resource "keycloak_openid_client_scope" "modern_gitops_stack_username" {
+  realm_id               = resource.keycloak_realm.modern_gitops_stack.id
+  name                   = "username"
+  description            = "OpenID Connect built-in scope: username"
+  include_in_token_scope = true
+}
+
+resource "keycloak_saml_client_scope" "modern_gitops_stack_name" {
+  realm_id    = resource.keycloak_realm.modern_gitops_stack.id
+  name        = "gitlab_name"
+  description = "SAML name"
+}
+
+resource "keycloak_saml_user_property_protocol_mapper" "gitlab_name_property" {
+  realm_id                   = resource.keycloak_realm.modern_gitops_stack.id
+  client_scope_id            = resource.keycloak_saml_client_scope.modern_gitops_stack_name.id
+  name                       = "name"
+  user_property              = "Username"
+  friendly_name              = "Username"
+  saml_attribute_name        = "name"
+  saml_attribute_name_format = "Basic"
+}
+resource "keycloak_saml_client_scope" "modern_gitops_stack_first_name" {
+  realm_id    = resource.keycloak_realm.modern_gitops_stack.id
+  name        = "gitlab_first_name"
+  description = "SAML first_name"
+}
+
+resource "keycloak_saml_user_property_protocol_mapper" "gitlab_first_name_property" {
+  realm_id                   = resource.keycloak_realm.modern_gitops_stack.id
+  client_scope_id            = resource.keycloak_saml_client_scope.modern_gitops_stack_first_name.id
+  name                       = "first_name"
+  user_property              = "FirstName"
+  friendly_name              = "First Name"
+  saml_attribute_name        = "first_name"
+  saml_attribute_name_format = "Basic"
+}
+resource "keycloak_saml_client_scope" "modern_gitops_stack_last_name" {
+  realm_id    = resource.keycloak_realm.modern_gitops_stack.id
+  name        = "gitlab_last_name"
+  description = "SAML last_name"
+}
+
+resource "keycloak_saml_user_property_protocol_mapper" "gitlab_last_name_property" {
+  realm_id                   = resource.keycloak_realm.modern_gitops_stack.id
+  client_scope_id            = resource.keycloak_saml_client_scope.modern_gitops_stack_last_name.id
+  name                       = "last_name"
+  user_property              = "LastName"
+  friendly_name              = "Last Name"
+  saml_attribute_name        = "last_name"
+  saml_attribute_name_format = "Basic"
+}
+resource "keycloak_saml_client_scope" "modern_gitops_stack_email" {
+  realm_id    = resource.keycloak_realm.modern_gitops_stack.id
+  name        = "gitlab_email"
+  description = "SAML email"
+}
+
+resource "keycloak_saml_user_property_protocol_mapper" "gitlab_email_property" {
+  realm_id                   = resource.keycloak_realm.modern_gitops_stack.id
+  client_scope_id            = resource.keycloak_saml_client_scope.modern_gitops_stack_email.id
+  name                       = "email"
+  user_property              = "Email"
+  friendly_name              = "Email"
+  saml_attribute_name        = "email"
+  saml_attribute_name_format = "Basic"
+}
+resource "keycloak_saml_client_scope" "modern_gitops_stack_roles" {
+  realm_id    = resource.keycloak_realm.modern_gitops_stack.id
+  name        = "gitlab_roles"
+  description = "SAML roles"
+}
+
 
 resource "keycloak_openid_group_membership_protocol_mapper" "modern_gitops_stack_groups" {
   realm_id        = resource.keycloak_realm.modern_gitops_stack.id
@@ -69,6 +186,17 @@ resource "keycloak_openid_user_attribute_protocol_mapper" "modern_gitops_stack_m
   add_to_id_token      = true
   claim_value_type     = "String"
 }
+resource "keycloak_openid_user_attribute_protocol_mapper" "modern_gitops_stack_username" {
+  realm_id             = resource.keycloak_realm.modern_gitops_stack.id
+  client_scope_id      = resource.keycloak_openid_client_scope.modern_gitops_stack_username.id
+  name                 = "username"
+  user_attribute       = "username"
+  claim_name           = "username"
+  multivalued          = false
+  aggregate_attributes = false
+  add_to_id_token      = true
+  claim_value_type     = "String"
+}
 
 resource "keycloak_openid_client_default_scopes" "client_default_scopes" {
   realm_id  = resource.keycloak_realm.modern_gitops_stack.id
@@ -77,8 +205,22 @@ resource "keycloak_openid_client_default_scopes" "client_default_scopes" {
     "profile",
     "email",
     "roles",
+    "username",
     resource.keycloak_openid_client_scope.modern_gitops_stack_groups.name,
     resource.keycloak_openid_client_scope.modern_gitops_stack_minio_policy.name,
+  ]
+}
+
+resource "keycloak_saml_client_default_scopes" "client_default_scopes" {
+  realm_id  = resource.keycloak_realm.modern_gitops_stack.id
+  client_id = resource.keycloak_saml_client.gitlab.id
+  default_scopes = [
+    "role_list",
+    "gitlab_first_name",
+    "gitlab_last_name",
+    "gitlab_email",
+    "gitlab_name",
+    "gitlab_roles"
   ]
 }
 
@@ -127,8 +269,30 @@ resource "keycloak_user_groups" "modern_gitops_stack_admins" {
 
 resource "null_resource" "this" {
   depends_on = [
-    resource.keycloak_realm.modern_gitops_stack,
-    resource.keycloak_group.modern_gitops_stack_admins,
-    resource.keycloak_user_groups.modern_gitops_stack_admins,
+    keycloak_realm.modern_gitops_stack,
+    keycloak_group.modern_gitops_stack_admins,
+    keycloak_user.modern_gitops_stack_users,
+    keycloak_user_groups.modern_gitops_stack_admins,
+    keycloak_saml_client_default_scopes.client_default_scopes,
+    keycloak_openid_client_default_scopes.client_default_scopes
   ]
+}
+
+
+data "keycloak_realm_keys" "realm_keys" {
+  realm_id   = resource.keycloak_realm.modern_gitops_stack.id
+  algorithms = ["RS256"]
+}
+
+# resource "ah_ssh_key" "realm_keys_fingerprint" {
+#   name = "idp_cert_fingerprint"
+#   public_key = data.keycloak_realm_keys.realm_keys.keys[0].certificate
+# }
+
+data "external" "fingerprint_generator" {
+  program = ["bash", "${path.module}/t.sh"]
+
+  query = {
+    cert = "-----BEGIN CERTIFICATE-----\n${data.keycloak_realm_keys.realm_keys.keys[0].certificate}\n-----END CERTIFICATE-----"
+  }
 }
