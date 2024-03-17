@@ -179,6 +179,9 @@ locals {
         name = "trino"
       },
       {
+        name = "registry"
+      },
+      {
         name = "landing"
       },
       {

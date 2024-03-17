@@ -55,14 +55,14 @@ resource "keycloak_saml_client" "gitlab" {
   sign_documents                = true
   signature_key_name            = "KEY_ID"
   signature_algorithm           = "RSA_SHA256"
-  root_url                      = "https://gitlab.apps.${var.cluster_name}.${var.base_domain}"
-  master_saml_processing_url    = "https://gitlab.apps.${var.cluster_name}.${var.base_domain}/users/auth/saml/callback"
+  root_url                      = "https://${local.domain_full}"
+  master_saml_processing_url    = "https://${local.domain_full}/users/auth/saml/callback"
   login_theme                   = "keycloak"
   idp_initiated_sso_url_name    = "gitlab"
-  idp_initiated_sso_relay_state = "gitlab.apps.${var.cluster_name}.${var.base_domain}"
+  idp_initiated_sso_relay_state = local.domain_full
   valid_redirect_uris = [
-    "https://gitlab.apps.${var.cluster_name}.${var.base_domain}/*",
-    "https://gitlab.apps.${var.cluster_name}.${var.base_domain}/users/auth/saml/callback",
+    "https://${local.domain_full}/*",
+    "https://${local.domain_full}/users/auth/saml/callback",
   ]
 }
 

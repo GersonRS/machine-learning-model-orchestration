@@ -1,6 +1,6 @@
 locals {
-  domain      = format("mlflow.%s", trimprefix("${var.subdomain}.${var.base_domain}", "."))
-  domain_full = format("mlflow.%s.%s", trimprefix("${var.subdomain}.${var.cluster_name}", "."), var.base_domain)
+  domain      = format("gitlab.%s", trimprefix("${var.subdomain}.${var.base_domain}", "."))
+  domain_full = format("gitlab.%s.%s", trimprefix("${var.subdomain}.${var.cluster_name}", "."), var.base_domain)
 
   rails = [{
     provider              = "AWS"

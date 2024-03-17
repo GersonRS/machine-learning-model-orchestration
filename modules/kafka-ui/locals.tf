@@ -49,7 +49,7 @@ locals {
           "traefik.ingress.kubernetes.io/router.entrypoints" = "websecure"
           "traefik.ingress.kubernetes.io/router.tls"         = "true"
         }
-        host = locals.domain_full
+        host = local.domain_full
         # -- Ingress tls configuration for https access
         tls = {
           enabled    = true
