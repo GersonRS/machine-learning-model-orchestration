@@ -33,11 +33,11 @@ locals {
       }]
       resourcesRequirements = {
         limits = {
-          cpu    = "2"
+          cpu    = 2
           memory = "2Gi"
         }
         requests = {
-          cpu    = "1"
+          cpu    = 1
           memory = "1Gi"
         }
       }
