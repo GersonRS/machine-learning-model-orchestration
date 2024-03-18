@@ -40,6 +40,16 @@ locals {
           memory = "1Gi"
         }
       }
+      nodes = [
+        {
+          id              = 1
+          nodeConfigGroup = "default_group"
+        },
+        {
+          id              = 2
+          nodeConfigGroup = "default_group"
+        }
+      ]
       prometheus = {
         servicemonitor = {
           enabled = var.enable_service_monitor

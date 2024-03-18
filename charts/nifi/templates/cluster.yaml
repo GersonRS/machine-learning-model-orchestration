@@ -54,10 +54,10 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
   nodes:
-    - id: 1
-      nodeConfigGroup: "default_group"
-    - id: 2
-      nodeConfigGroup: "default_group"
+    {{- range .Values.nifi.nodes }}
+    - id: {{ .id }}
+      nodeConfigGroup: {{ .nodeConfigGroup }}
+    {{- end }}
   propagateLabels: true
   nifiClusterTaskSpec:
     retryDurationMinutes: 10
