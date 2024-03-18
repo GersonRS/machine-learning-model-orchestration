@@ -64,7 +64,7 @@ spec:
         {{- end }}
       {{- with .Values.nifi.resourcesRequirements }}
       resourcesRequirements:
-        {{- toYaml . | nindent 4 }}
+        {{- toYaml . }}
       {{- end }}
   nodes:
     {{- range .Values.nifi.nodes }}
