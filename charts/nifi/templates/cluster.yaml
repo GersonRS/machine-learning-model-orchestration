@@ -38,16 +38,16 @@ spec:
       serviceAccountName: default
       storageConfigs:
         {{- range .Values.nifi.storageConfigs }}
-          - mountPath: {{ .mountPath | quote }}
-            name: {{ .name | quote }}
+          - mountPath: {{ .mountPath }}
+            name: {{ .name }}
             reclaimPolicy: Delete
             pvcSpec:
               accessModes:
                 - ReadWriteOnce
-              storageClassName: {{ .storageClassName | quote }}
+              storageClassName: {{ .storageClassName }}
               resources:
                 requests:
-                  storage: {{ .storage | quote }}
+                  storage: {{ .storage }}
         {{- end }}
       resourcesRequirements:
         limits:
