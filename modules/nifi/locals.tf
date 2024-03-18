@@ -22,8 +22,9 @@ locals {
   }]
   helm_values = [{
     nifi = {
-      clusterName  = "simplenifi"
-      clusterImage = "apache/nifi:1.23.2"
+      clusterName     = "simplenifi"
+      clusterImage    = "apache/nifi:1.23.2"
+      overrideConfigs = {}
       storageConfigs = [{
         name             = "logs"
         mountPath        = "/opt/nifi/nifi-current/logs"
@@ -56,7 +57,7 @@ locals {
         }
       }
       oidc = {
-        enabled       = true
+        enabled       = false
         url           = "${var.oidc.issuer_url}/.well-known/openid-configuration"
         client_id     = "${var.oidc.client_id}"
         client_secret = "${var.oidc.client_secret}"
