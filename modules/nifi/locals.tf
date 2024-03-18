@@ -22,7 +22,8 @@ locals {
   }]
   helm_values = [{
     nifi = {
-      clusterName = "simplenifi"
+      clusterName  = "simplenifi"
+      clusterImage = "apache/nifi:1.23.2"
       prometheus = {
         servicemonitor = {
           enabled = var.enable_service_monitor

@@ -21,7 +21,7 @@ spec:
             port: 8080
         type: LoadBalancer
   {{- end }}
-  clusterImage: "apache/nifi:1.23.2"
+  clusterImage: {{ .Values.nifi.clusterImage }}
   initContainerImage: "bash:5.2.2"
   oneNifiNodePerNode: true
   readOnlyConfig:
