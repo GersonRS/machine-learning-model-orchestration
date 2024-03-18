@@ -22,42 +22,13 @@ locals {
   }]
   helm_values_nifi = [{
     nifi = {
-      clusterName     = "simplenifi"
-      clusterImage    = "apache/nifi:1.23.2"
-      overrideConfigs = {}
-      storageConfigs = [{
-        name             = "logs"
-        mountPath        = "/opt/nifi/nifi-current/logs"
-        storage          = "10Gi"
-        storageClassName = "standard"
-      }]
-      resourcesRequirements = {
-        limits = {
-          cpu    = "1"
-          memory = "2Gi"
-        }
-        requests = {
-          cpu    = "1"
-          memory = "2Gi"
-        }
-      }
-      nodes = [
-        {
-          id              = 1
-          nodeConfigGroup = "default_group"
-        },
-        {
-          id              = 2
-          nodeConfigGroup = "default_group"
-        }
-      ]
       prometheus = {
         servicemonitor = {
           enabled = var.enable_service_monitor
         }
       }
       oidc = {
-        enabled       = false
+        enabled       = true
         url           = "${var.oidc.issuer_url}/.well-known/openid-configuration"
         client_id     = "${var.oidc.client_id}"
         client_secret = "${var.oidc.client_secret}"
