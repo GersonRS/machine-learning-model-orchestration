@@ -65,40 +65,40 @@ module "istio" {
 }
 
 
-# module "knative" {
-#   source                 = "./modules/knative"
-#   argocd_project         = local.cluster_name
-#   base_domain            = local.gateway_base_domain
-#   enable_service_monitor = local.enable_service_monitor
-#   target_revision        = local.target_revision
-#   project_source_repo    = local.project_source_repo
-#   dependency_ids = {
-#     istio        = module.istio.id
-#     cert-manager = module.cert-manager.id
-#   }
-# }
+module "knative" {
+  source                 = "./modules/knative"
+  argocd_project         = local.cluster_name
+  base_domain            = local.gateway_base_domain
+  enable_service_monitor = local.enable_service_monitor
+  target_revision        = local.target_revision
+  project_source_repo    = local.project_source_repo
+  dependency_ids = {
+    istio        = module.istio.id
+    cert-manager = module.cert-manager.id
+  }
+}
 
-# module "kserve" {
-#   source                 = "./modules/kserve"
-#   argocd_project         = local.cluster_name
-#   enable_service_monitor = local.enable_service_monitor
-#   target_revision        = local.target_revision
-#   project_source_repo    = local.project_source_repo
-#   dependency_ids = {
-#     knative = module.knative.id
-#   }
-# }
+module "kserve" {
+  source                 = "./modules/kserve"
+  argocd_project         = local.cluster_name
+  enable_service_monitor = local.enable_service_monitor
+  target_revision        = local.target_revision
+  project_source_repo    = local.project_source_repo
+  dependency_ids = {
+    knative = module.knative.id
+  }
+}
 
-# module "reflector" {
-#   source                 = "./modules/reflector"
-#   argocd_project         = local.cluster_name
-#   enable_service_monitor = local.enable_service_monitor
-#   target_revision        = local.target_revision
-#   project_source_repo    = local.project_source_repo
-#   dependency_ids = {
-#     argocd = module.argocd_bootstrap.id
-#   }
-# }
+module "reflector" {
+  source                 = "./modules/reflector"
+  argocd_project         = local.cluster_name
+  enable_service_monitor = local.enable_service_monitor
+  target_revision        = local.target_revision
+  project_source_repo    = local.project_source_repo
+  dependency_ids = {
+    argocd = module.argocd_bootstrap.id
+  }
+}
 
 module "postgresql" {
   source                 = "./modules/postgresql"
@@ -543,30 +543,30 @@ module "kube-prometheus-stack" {
 #   }
 # }
 
-module "gitlab" {
-  source                 = "./modules/gitlab"
-  cluster_name           = local.cluster_name
-  base_domain            = local.base_domain
-  subdomain              = local.subdomain
-  cluster_issuer         = local.cluster_issuer
-  argocd_project         = local.cluster_name
-  enable_service_monitor = local.enable_service_monitor
-  target_revision        = local.target_revision
-  project_source_repo    = local.project_source_repo
-  oidc                   = module.oidc.oidc
-  metrics_storage = {
-    bucket_name       = "registry"
-    endpoint          = module.minio.endpoint
-    access_key        = module.minio.minio_root_user_credentials.username
-    secret_access_key = module.minio.minio_root_user_credentials.password
-  }
-  dependency_ids = {
-    argocd  = module.argocd_bootstrap.id
-    traefik = module.traefik.id
-    oidc    = module.oidc.id
-    minio   = module.minio.id
-  }
-}
+# module "gitlab" {
+#   source                 = "./modules/gitlab"
+#   cluster_name           = local.cluster_name
+#   base_domain            = local.base_domain
+#   subdomain              = local.subdomain
+#   cluster_issuer         = local.cluster_issuer
+#   argocd_project         = local.cluster_name
+#   enable_service_monitor = local.enable_service_monitor
+#   target_revision        = local.target_revision
+#   project_source_repo    = local.project_source_repo
+#   oidc                   = module.oidc.oidc
+#   metrics_storage = {
+#     bucket_name       = "registry"
+#     endpoint          = module.minio.endpoint
+#     access_key        = module.minio.minio_root_user_credentials.username
+#     secret_access_key = module.minio.minio_root_user_credentials.password
+#   }
+#   dependency_ids = {
+#     argocd  = module.argocd_bootstrap.id
+#     traefik = module.traefik.id
+#     oidc    = module.oidc.id
+#     minio   = module.minio.id
+#   }
+# }
 
 module "argocd" {
   source                   = "./modules/argocd"
