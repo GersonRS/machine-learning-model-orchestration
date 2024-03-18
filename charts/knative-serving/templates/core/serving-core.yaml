@@ -5187,8 +5187,6 @@ data:
       selector:
         app: nonprofit
 
-  {{ - toYaml . | .Values.domain }}: ""
-
 ---
 # Copyright 2020 The Knative Authors
 #
