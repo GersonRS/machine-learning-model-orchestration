@@ -1,62 +1,76 @@
 apiVersion: nifi.konpyutaika.com/v1
 kind: NifiCluster
 metadata:
-  name: simplenifi
+  name: {{ .Values.nifi.clusterName }}
 spec:
   service:
     headlessEnabled: true
     labels:
-      cluster-name: simplenifi
+      cluster-name: {{ .Values.nifi.clusterName }}
   zkAddress: "zookeeper.zookeeper:2181"
-  zkPath: /simplenifi
+  zkPath: /{{ .Values.nifi.clusterName }}
+  {{ if .Values.nifi.ingress.enabled }}
   externalServices:
     - metadata:
         labels:
-          cluster-name: driver-simplenifi
+          cluster-name: driver-{{ .Values.nifi.clusterName }}
       name: driver-ip
       spec:
         portConfigs:
           - internalListenerName: http
             port: 8080
-        type: ClusterIP
-  clusterImage: "apache/nifi:1.23.2"
+        type: LoadBalancer
+  {{ end }}
+  clusterImage: {{ .Values.nifi.clusterImage }}
   initContainerImage: "bash:5.2.2"
   oneNifiNodePerNode: true
   readOnlyConfig:
     nifiProperties:
       overrideConfigs: |
         nifi.sensitive.props.key=thisIsABadSensitiveKeyPassword
+        {{- if .Values.nifi.overrideConfigs }}
+        {{- range $key, $value := .Values.nifi.overrideConfigs }}
+        {{ $key }}={{ $value | quote }}
+        {{- end }}
+        {{- end }}
+        {{- if .Values.nifi.oidc.enabled }}
+        nifi.security.user.oidc.discovery.url={{ .Values.nifi.oidc.url }}
+        nifi.security.user.oidc.client.id={{ .Values.nifi.oidc.client_id }}
+        nifi.security.user.oidc.client.secret={{ .Values.nifi.oidc.client_secret }}
+        nifi.security.identity.mapping.pattern.dn=CN=([^,]*)(?:, (?:O|OU)=.*)?
+        nifi.security.identity.mapping.value.dn=$1
+        nifi.security.identity.mapping.transform.dn=NONE
+        {{ end }}
   pod:
     labels:
-      cluster-name: simplenifi
+      cluster-name: {{ .Values.nifi.clusterName }}
   nodeConfigGroups:
     default_group:
       imagePullPolicy: IfNotPresent
       isNode: true
       serviceAccountName: default
       storageConfigs:
-        - mountPath: "/opt/nifi/nifi-current/logs"
-          name: logs
-          reclaimPolicy: Delete
-          pvcSpec:
-            accessModes:
-              - ReadWriteOnce
-            storageClassName: "standard"
-            resources:
-              requests:
-                storage: 10Gi
+        {{- range .Values.nifi.storageConfigs }}
+          - mountPath: {{ .mountPath | quote }}
+            name: {{ .name | quote }}
+            reclaimPolicy: Delete
+            pvcSpec:
+              accessModes:
+                - ReadWriteOnce
+              storageClassName: {{ .storageClassName | quote }}
+              resources:
+                requests:
+                  storage: {{ .storage | quote }}
+        {{- end }}
+      {{- with .Values.nifi.resourcesRequirements }}
       resourcesRequirements:
-        limits:
-          cpu: "1"
-          memory: 2Gi
-        requests:
-          cpu: "1"
-          memory: 2Gi
+        {{- toYaml . | nindent 4 }}
+      {{- end }}
   nodes:
-    - id: 1
-      nodeConfigGroup: "default_group"
-    - id: 2
-      nodeConfigGroup: "default_group"
+    {{- range .Values.nifi.nodes }}
+    - id: {{ .id | quote }}
+      nodeConfigGroup: {{ .nodeConfigGroup | quote }}
+    {{- end }}
   propagateLabels: true
   nifiClusterTaskSpec:
     retryDurationMinutes: 10

@@ -2,15 +2,62 @@ locals {
   domain      = format("nifi.%s", trimprefix("${var.subdomain}.${var.base_domain}", "."))
   domain_full = format("nifi.%s.%s", trimprefix("${var.subdomain}.${var.cluster_name}", "."), var.base_domain)
 
-  helm_values = [{
+  helm_values_nifikop = [{
+    nifikop = {
+      image = {
+        tag = "v1.7.0-release"
+      }
+      resources = {
+        requests = {
+          memory = "256Mi"
+          cpu    = "250m"
+        }
+        limits = {
+          memory = "256Mi"
+          cpu    = "550m"
+        }
+      }
+      namespaces = [var.namespace]
+    }
+  }]
+  helm_values_nifi = [{
     nifi = {
+      clusterName     = "simplenifi"
+      clusterImage    = "apache/nifi:1.23.2"
+      overrideConfigs = {}
+      storageConfigs = [{
+        name             = "logs"
+        mountPath        = "/opt/nifi/nifi-current/logs"
+        storage          = "10Gi"
+        storageClassName = "standard"
+      }]
+      resourcesRequirements = {
+        limits = {
+          cpu    = "1"
+          memory = "2Gi"
+        }
+        requests = {
+          cpu    = "1"
+          memory = "2Gi"
+        }
+      }
+      nodes = [
+        {
+          id              = 1
+          nodeConfigGroup = "default_group"
+        },
+        {
+          id              = 2
+          nodeConfigGroup = "default_group"
+        }
+      ]
       prometheus = {
         servicemonitor = {
           enabled = var.enable_service_monitor
         }
       }
       oidc = {
-        enabled       = true
+        enabled       = false
         url           = "${var.oidc.issuer_url}/.well-known/openid-configuration"
         client_id     = "${var.oidc.client_id}"
         client_secret = "${var.oidc.client_secret}"
@@ -40,22 +87,6 @@ locals {
           ]
         }]
       }
-    }
-    nifikop = {
-      image = {
-        tag = "v1.7.0-release"
-      }
-      resources = {
-        requests = {
-          memory = "256Mi"
-          cpu    = "250m"
-        }
-        limits = {
-          memory = "256Mi"
-          cpu    = "550m"
-        }
-      }
-      namespaces = ["nifi"]
     }
   }]
 }
