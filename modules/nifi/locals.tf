@@ -24,11 +24,21 @@ locals {
     nifi = {
       clusterName  = "simplenifi"
       clusterImage = "apache/nifi:1.23.2"
-      storageConfigs = {
+      storageConfigs = [{
         name             = "logs"
         mountPath        = "/opt/nifi/nifi-current/logs"
         storageClassName = "standard"
         storage          = "10Gi"
+      }]
+      resourcesRequirements = {
+        limits = {
+          cpu    = "2"
+          memory = "2Gi"
+        }
+        requests = {
+          cpu    = "1"
+          memory = "1Gi"
+        }
       }
       prometheus = {
         servicemonitor = {

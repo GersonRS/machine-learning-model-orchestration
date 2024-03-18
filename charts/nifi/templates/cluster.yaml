@@ -49,13 +49,10 @@ spec:
                 requests:
                   storage: {{ .storage }}
         {{- end }}
+      {{- with .Values.nifi.resourcesRequirements }}
       resourcesRequirements:
-        limits:
-          cpu: "1"
-          memory: 2Gi
-        requests:
-          cpu: "1"
-          memory: 2Gi
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
   nodes:
     - id: 1
       nodeConfigGroup: "default_group"
