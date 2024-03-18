@@ -37,16 +37,18 @@ spec:
       isNode: true
       serviceAccountName: default
       storageConfigs:
-        - mountPath: "/opt/nifi/nifi-current/logs"
-          name: logs
-          reclaimPolicy: Delete
-          pvcSpec:
-            accessModes:
-              - ReadWriteOnce
-            storageClassName: "standard"
-            resources:
-              requests:
-                storage: 10Gi
+        {{- range .Values.nifi.storageConfigs }}
+          - mountPath: {{ .mountPath | quote }}
+            name: {{ .name | quote }}
+            reclaimPolicy: Delete
+            pvcSpec:
+              accessModes:
+                - ReadWriteOnce
+              storageClassName: {{ .storageClassName | quote }}
+              resources:
+                requests:
+                  storage: {{ .storage | quote }}
+        {{- end }}
       resourcesRequirements:
         limits:
           cpu: "1"
