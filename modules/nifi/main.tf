@@ -38,6 +38,10 @@ data "utils_deep_merge_yaml" "values" {
   input = [for i in concat(local.helm_values, var.helm_values) : yamlencode(i)]
 }
 
+data "utils_deep_merge_yaml" "nifikop" {
+  input = [for i in local.helm_nifikop : yamlencode(i)]
+}
+
 resource "argocd_application" "crds" {
   metadata {
     name      = "nifikop-crds"
@@ -112,7 +116,7 @@ resource "argocd_application" "nifikop" {
       target_revision = var.target_revision
       helm {
         skip_crds = true
-        values    = data.utils_deep_merge_yaml.values.output
+        values    = data.utils_deep_merge_yaml.nifikop.output
       }
     }
 

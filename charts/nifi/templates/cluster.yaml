@@ -1,18 +1,18 @@
 apiVersion: nifi.konpyutaika.com/v1
 kind: NifiCluster
 metadata:
-  name: simplenifi
+  name: {{ .Values.nifi.clusterName }}
 spec:
   service:
     headlessEnabled: true
     labels:
-      cluster-name: simplenifi
+      cluster-name: {{ .Values.nifi.clusterName }}
   zkAddress: "zookeeper.zookeeper:2181"
-  zkPath: /simplenifi
+  zkPath: /{{ .Values.nifi.clusterName }}
   externalServices:
     - metadata:
         labels:
-          cluster-name: driver-simplenifi
+          cluster-name: driver-{{ .Values.nifi.clusterName }}
       name: driver-ip
       spec:
         portConfigs:
@@ -28,7 +28,7 @@ spec:
         nifi.sensitive.props.key=thisIsABadSensitiveKeyPassword
   pod:
     labels:
-      cluster-name: simplenifi
+      cluster-name: {{ .Values.nifi.clusterName }}
   nodeConfigGroups:
     default_group:
       imagePullPolicy: IfNotPresent
