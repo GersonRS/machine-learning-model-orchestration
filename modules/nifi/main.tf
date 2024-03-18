@@ -34,11 +34,8 @@ resource "argocd_project" "this" {
   }
 }
 
-data "utils_deep_merge_yaml" "values_nifikop" {
-  input = [for i in concat(local.helm_values_nifikop, var.helm_values) : yamlencode(i)]
-}
-data "utils_deep_merge_yaml" "values_nifi" {
-  input = [for i in concat(local.helm_values_nifi, var.helm_values) : yamlencode(i)]
+data "utils_deep_merge_yaml" "values" {
+  input = [for i in concat(local.helm_values, var.helm_values) : yamlencode(i)]
 }
 
 resource "argocd_application" "crds" {
@@ -115,7 +112,7 @@ resource "argocd_application" "nifikop" {
       target_revision = var.target_revision
       helm {
         skip_crds = true
-        values    = data.utils_deep_merge_yaml.values_nifikop.output
+        values    = data.utils_deep_merge_yaml.values.output
       }
     }
 
@@ -177,7 +174,7 @@ resource "argocd_application" "this" {
       path            = "charts/nifi"
       target_revision = var.target_revision
       helm {
-        values = data.utils_deep_merge_yaml.values_nifi.output
+        values = data.utils_deep_merge_yaml.values.output
       }
     }
 

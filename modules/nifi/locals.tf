@@ -2,25 +2,7 @@ locals {
   domain      = format("nifi.%s", trimprefix("${var.subdomain}.${var.base_domain}", "."))
   domain_full = format("nifi.%s.%s", trimprefix("${var.subdomain}.${var.cluster_name}", "."), var.base_domain)
 
-  helm_values_nifikop = [{
-    nifikop = {
-      image = {
-        tag = "v1.7.0-release"
-      }
-      resources = {
-        requests = {
-          memory = "256Mi"
-          cpu    = "250m"
-        }
-        limits = {
-          memory = "256Mi"
-          cpu    = "550m"
-        }
-      }
-      namespaces = [var.namespace]
-    }
-  }]
-  helm_values_nifi = [{
+  helm_values = [{
     nifi = {
       prometheus = {
         servicemonitor = {
@@ -58,6 +40,22 @@ locals {
           ]
         }]
       }
+    }
+    nifikop = {
+      image = {
+        tag = "v1.7.0-release"
+      }
+      resources = {
+        requests = {
+          memory = "256Mi"
+          cpu    = "250m"
+        }
+        limits = {
+          memory = "256Mi"
+          cpu    = "550m"
+        }
+      }
+      namespaces = ["nifi"]
     }
   }]
 }
