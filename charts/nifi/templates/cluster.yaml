@@ -7,6 +7,7 @@ spec:
     headlessEnabled: true
     labels:
       cluster-name: {{ .Values.nifi.clusterName }}
+  {{- if .Values.nifi.ingress.enabled }}
   zkAddress: "zookeeper.zookeeper:2181"
   zkPath: /{{ .Values.nifi.clusterName }}
   externalServices:
@@ -19,6 +20,7 @@ spec:
           - internalListenerName: http
             port: 8080
         type: LoadBalancer
+  {{- end }}
   clusterImage: "apache/nifi:1.23.2"
   initContainerImage: "bash:5.2.2"
   oneNifiNodePerNode: true
