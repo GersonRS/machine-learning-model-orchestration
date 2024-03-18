@@ -153,16 +153,16 @@ module "zookeeper" {
 }
 
 module "nifi" {
-  source                 = "./modules/nifi"
-  cluster_name           = local.cluster_name
-  base_domain            = local.base_domain
-  subdomain              = local.subdomain
-  cluster_issuer         = local.cluster_issuer
-  argocd_project         = local.cluster_name
-  enable_service_monitor = local.enable_service_monitor
-  oidc                   = module.oidc.oidc
-  target_revision        = local.target_revision
-  project_source_repo    = local.project_source_repo
+  source         = "./modules/nifi"
+  cluster_name   = local.cluster_name
+  base_domain    = local.base_domain
+  subdomain      = local.subdomain
+  cluster_issuer = local.cluster_issuer
+  argocd_project = local.cluster_name
+  # enable_service_monitor = local.enable_service_monitor
+  oidc                = module.oidc.oidc
+  target_revision     = local.target_revision
+  project_source_repo = local.project_source_repo
   dependency_ids = {
     oidc      = module.oidc.id
     zookeeper = module.zookeeper.id
