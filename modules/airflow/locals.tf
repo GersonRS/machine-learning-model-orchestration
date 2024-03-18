@@ -1,6 +1,6 @@
 locals {
-  domain      = format("mlflow.%s", trimprefix("${var.subdomain}.${var.base_domain}", "."))
-  domain_full = format("mlflow.%s.%s", trimprefix("${var.subdomain}.${var.cluster_name}", "."), var.base_domain)
+  domain      = format("airflow.%s", trimprefix("${var.subdomain}.${var.base_domain}", "."))
+  domain_full = format("airflow.%s.%s", trimprefix("${var.subdomain}.${var.cluster_name}", "."), var.base_domain)
 
   mlflow = var.mlflow != null ? base64encode("http://${var.mlflow.endpoint}:5000/?__extra__=%7B%7D") : base64encode("http://localhost:5000")
   secret = [

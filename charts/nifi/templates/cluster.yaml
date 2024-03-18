@@ -18,7 +18,7 @@ spec:
         portConfigs:
           - internalListenerName: http
             port: 8080
-        type: LoadBalancer
+        type: ClusterIP
   clusterImage: "apache/nifi:1.23.2"
   initContainerImage: "bash:5.2.2"
   oneNifiNodePerNode: true

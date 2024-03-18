@@ -53,66 +53,66 @@ module "cert-manager" {
 }
 
 
-module "istio" {
-  source                 = "./modules/istio"
-  argocd_project         = local.cluster_name
-  enable_service_monitor = local.enable_service_monitor
-  target_revision        = local.target_revision
-  project_source_repo    = local.project_source_repo
-  dependency_ids = {
-    argocd = module.argocd_bootstrap.id
-  }
-}
+# module "istio" {
+#   source                 = "./modules/istio"
+#   argocd_project         = local.cluster_name
+#   enable_service_monitor = local.enable_service_monitor
+#   target_revision        = local.target_revision
+#   project_source_repo    = local.project_source_repo
+#   dependency_ids = {
+#     argocd = module.argocd_bootstrap.id
+#   }
+# }
 
 
-module "knative" {
-  source                 = "./modules/knative"
-  argocd_project         = local.cluster_name
-  base_domain            = local.gateway_base_domain
-  enable_service_monitor = local.enable_service_monitor
-  target_revision        = local.target_revision
-  project_source_repo    = local.project_source_repo
-  dependency_ids = {
-    istio        = module.istio.id
-    cert-manager = module.cert-manager.id
-  }
-}
+# module "knative" {
+#   source                 = "./modules/knative"
+#   argocd_project         = local.cluster_name
+#   base_domain            = local.gateway_base_domain
+#   enable_service_monitor = local.enable_service_monitor
+#   target_revision        = local.target_revision
+#   project_source_repo    = local.project_source_repo
+#   dependency_ids = {
+#     istio        = module.istio.id
+#     cert-manager = module.cert-manager.id
+#   }
+# }
 
-module "kserve" {
-  source                 = "./modules/kserve"
-  argocd_project         = local.cluster_name
-  enable_service_monitor = local.enable_service_monitor
-  target_revision        = local.target_revision
-  project_source_repo    = local.project_source_repo
-  dependency_ids = {
-    knative = module.knative.id
-  }
-}
+# module "kserve" {
+#   source                 = "./modules/kserve"
+#   argocd_project         = local.cluster_name
+#   enable_service_monitor = local.enable_service_monitor
+#   target_revision        = local.target_revision
+#   project_source_repo    = local.project_source_repo
+#   dependency_ids = {
+#     knative = module.knative.id
+#   }
+# }
 
-module "reflector" {
-  source                 = "./modules/reflector"
-  argocd_project         = local.cluster_name
-  enable_service_monitor = local.enable_service_monitor
-  target_revision        = local.target_revision
-  project_source_repo    = local.project_source_repo
-  dependency_ids = {
-    argocd = module.argocd_bootstrap.id
-  }
-}
+# module "reflector" {
+#   source                 = "./modules/reflector"
+#   argocd_project         = local.cluster_name
+#   enable_service_monitor = local.enable_service_monitor
+#   target_revision        = local.target_revision
+#   project_source_repo    = local.project_source_repo
+#   dependency_ids = {
+#     argocd = module.argocd_bootstrap.id
+#   }
+# }
 
-module "postgresql" {
-  source                 = "./modules/postgresql"
-  cluster_name           = local.cluster_name
-  base_domain            = local.base_domain
-  cluster_issuer         = local.cluster_issuer
-  argocd_project         = local.cluster_name
-  enable_service_monitor = local.enable_service_monitor
-  target_revision        = local.target_revision
-  project_source_repo    = local.project_source_repo
-  dependency_ids = {
-    argocd = module.argocd_bootstrap.id
-  }
-}
+# module "postgresql" {
+#   source                 = "./modules/postgresql"
+#   cluster_name           = local.cluster_name
+#   base_domain            = local.base_domain
+#   cluster_issuer         = local.cluster_issuer
+#   argocd_project         = local.cluster_name
+#   enable_service_monitor = local.enable_service_monitor
+#   target_revision        = local.target_revision
+#   project_source_repo    = local.project_source_repo
+#   dependency_ids = {
+#     argocd = module.argocd_bootstrap.id
+#   }
+# }
 
 module "keycloak" {
   source              = "./modules/keycloak"
@@ -343,21 +343,21 @@ module "kube-prometheus-stack" {
 #   }
 # }
 
-# module "vault" {
-#   source                 = "./modules/vault"
-#   cluster_name           = local.cluster_name
-#   base_domain            = local.base_domain
-#   subdomain              = local.subdomain
-#   cluster_issuer         = local.cluster_issuer
-#   argocd_project         = local.cluster_name
-#   enable_service_monitor = local.enable_service_monitor
-#   target_revision        = local.target_revision
-#   project_source_repo    = local.project_source_repo
-#   dependency_ids = {
-#     argocd  = module.argocd_bootstrap.id
-#     traefik = module.traefik.id
-#   }
-# }
+# # module "vault" {
+# #   source                 = "./modules/vault"
+# #   cluster_name           = local.cluster_name
+# #   base_domain            = local.base_domain
+# #   subdomain              = local.subdomain
+# #   cluster_issuer         = local.cluster_issuer
+# #   argocd_project         = local.cluster_name
+# #   enable_service_monitor = local.enable_service_monitor
+# #   target_revision        = local.target_revision
+# #   project_source_repo    = local.project_source_repo
+# #   dependency_ids = {
+# #     argocd  = module.argocd_bootstrap.id
+# #     traefik = module.traefik.id
+# #   }
+# # }
 
 # module "pinot" {
 #   source                 = "./modules/pinot"
@@ -488,9 +488,9 @@ module "kube-prometheus-stack" {
 #   mlflow = {
 #     endpoint = module.mlflow.cluster_dns
 #   }
-#   ray = {
-#     endpoint = module.ray.cluster_dns
-#   }
+#   # ray = {
+#   #   endpoint = module.ray.cluster_dns
+#   # }
 #   dependency_ids = {
 #     argocd     = module.argocd_bootstrap.id
 #     traefik    = module.traefik.id
@@ -498,7 +498,7 @@ module "kube-prometheus-stack" {
 #     minio      = module.minio.id
 #     postgresql = module.postgresql.id
 #     mlflow     = module.mlflow.id
-#     ray        = module.ray.id
+#     # ray        = module.ray.id
 #   }
 # }
 
@@ -529,9 +529,9 @@ module "kube-prometheus-stack" {
 #   mlflow = {
 #     endpoint = module.mlflow.cluster_dns
 #   }
-#   ray = {
-#     endpoint = module.ray.cluster_dns
-#   }
+#   # ray = {
+#   #   endpoint = module.ray.cluster_dns
+#   # }
 #   dependency_ids = {
 #     argocd     = module.argocd_bootstrap.id
 #     traefik    = module.traefik.id
@@ -539,7 +539,7 @@ module "kube-prometheus-stack" {
 #     minio      = module.minio.id
 #     postgresql = module.postgresql.id
 #     mlflow     = module.mlflow.id
-#     ray        = module.ray.id
+#     # ray        = module.ray.id
 #   }
 # }
 

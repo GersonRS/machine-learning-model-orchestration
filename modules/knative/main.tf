@@ -204,15 +204,15 @@ resource "null_resource" "this" {
   ]
 }
 
-# resource "kubernetes_config_map_v1_data" "patch" {
-#   metadata {
-#     name      = "config-domain"
-#     namespace = var.namespace
-#   }
-#   data = {
-#     "${var.base_domain}" = ""
-#   }
-#   depends_on = [
-#     resource.argocd_application.this,
-#   ]
-# }
+resource "kubernetes_config_map_v1_data" "patch" {
+  metadata {
+    name      = "config-domain"
+    namespace = var.namespace
+  }
+  data = {
+    "${var.base_domain}" = ""
+  }
+  depends_on = [
+    resource.null_resource.this,
+  ]
+}
