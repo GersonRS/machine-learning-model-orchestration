@@ -1,0 +1,9 @@
+apiVersion: v2
+dependencies:
+  - name: vault
+    repository: https://helm.releases.hashicorp.com
+    version: "*.*.*"
+description: |
+  This chart installs vault
+name: vault
+version: "0"

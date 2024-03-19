@@ -1,4 +1,7 @@
 locals {
+  domain      = format("gitlab.%s", trimprefix("${var.subdomain}.${var.base_domain}", "."))
+  domain_full = format("gitlab.%s.%s", trimprefix("${var.subdomain}.${var.cluster_name}", "."), var.base_domain)
+
   oidc = {
     issuer_url    = format("https://keycloak.%s.%s/realms/modern-gitops-stack", trimprefix("${var.subdomain}.${var.cluster_name}", "."), var.base_domain)
     oauth_url     = format("https://keycloak.%s.%s/realms/modern-gitops-stack/protocol/openid-connect/auth", trimprefix("${var.subdomain}.${var.cluster_name}", "."), var.base_domain)

@@ -74,6 +74,12 @@ variable "dependency_ids" {
   default = {}
 }
 
+variable "enable_service_monitor" {
+  description = "Boolean to enable the deployment of a service monitor for Prometheus. This also enables the deployment of default Prometheus rules and Grafana dashboards, which are embedded inside the chart templates and are taken from the official Thanos examples, available https://github.com/thanos-io/thanos/blob/main/examples/alerts/alerts.yaml[here]."
+  type        = bool
+  default     = false
+}
+
 #######################
 ## Module variables
 #######################

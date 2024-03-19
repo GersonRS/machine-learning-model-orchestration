@@ -170,9 +170,9 @@ locals {
         replicas  = var.high_availability.enabled ? var.high_availability.controller.replicas : null
         resources = var.resources.controller
         metrics = {
-          enabled = true
+          enabled = var.enable_service_monitor
           serviceMonitor = {
-            enabled = true
+            enabled = var.enable_service_monitor
           }
         }
       }
@@ -188,9 +188,9 @@ locals {
         } : null
         resources = var.resources.repo_server
         metrics = {
-          enabled = true
+          enabled = var.enable_service_monitor
           serviceMonitor = {
-            enabled = true
+            enabled = var.enable_service_monitor
           }
         }
         volumes         = local.repo_server_volumes
@@ -266,9 +266,9 @@ locals {
           ]
         }
         metrics = {
-          enabled = true
+          enabled = var.enable_service_monitor
           serviceMonitor = {
-            enabled = true
+            enabled = var.enable_service_monitor
           }
         }
       }
