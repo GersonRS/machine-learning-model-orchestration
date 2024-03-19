@@ -29,7 +29,7 @@ variable "target_revision" {
 variable "enable_service_monitor" {
   description = "Enable Prometheus ServiceMonitor in the Helm chart."
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "helm_values" {

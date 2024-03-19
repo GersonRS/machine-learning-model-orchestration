@@ -19,16 +19,16 @@ module "argocd_bootstrap" {
   depends_on = [module.kind]
 }
 
-module "metrics-server" {
-  source               = "./modules/metrics-server"
-  argocd_project       = local.cluster_name
-  kubelet_insecure_tls = true
-  target_revision      = local.target_revision
-  project_source_repo  = local.project_source_repo
-  dependency_ids = {
-    argocd = module.argocd_bootstrap.id
-  }
-}
+# module "metrics-server" {
+#   source               = "./modules/metrics-server"
+#   argocd_project       = local.cluster_name
+#   kubelet_insecure_tls = true
+#   target_revision      = local.target_revision
+#   project_source_repo  = local.project_source_repo
+#   dependency_ids = {
+#     argocd = module.argocd_bootstrap.id
+#   }
+# }
 
 module "traefik" {
   source                 = "./modules/traefik/kind"
@@ -188,82 +188,82 @@ module "minio" {
   }
 }
 
-module "loki-stack" {
-  source              = "./modules/loki-stack/kind"
-  argocd_project      = local.cluster_name
-  target_revision     = local.target_revision
-  project_source_repo = local.project_source_repo
-  logs_storage = {
-    bucket_name = local.minio_config.buckets.0.name
-    endpoint    = module.minio.endpoint
-    access_key  = local.minio_config.users.0.accessKey
-    secret_key  = local.minio_config.users.0.secretKey
-  }
-  dependency_ids = {
-    minio = module.minio.id
-  }
-}
+# module "loki-stack" {
+#   source              = "./modules/loki-stack/kind"
+#   argocd_project      = local.cluster_name
+#   target_revision     = local.target_revision
+#   project_source_repo = local.project_source_repo
+#   logs_storage = {
+#     bucket_name = local.minio_config.buckets.0.name
+#     endpoint    = module.minio.endpoint
+#     access_key  = local.minio_config.users.0.accessKey
+#     secret_key  = local.minio_config.users.0.secretKey
+#   }
+#   dependency_ids = {
+#     minio = module.minio.id
+#   }
+# }
 
-module "thanos" {
-  source                 = "./modules/thanos/kind"
-  cluster_name           = local.cluster_name
-  base_domain            = local.base_domain
-  subdomain              = local.subdomain
-  cluster_issuer         = local.cluster_issuer
-  argocd_project         = local.cluster_name
-  enable_service_monitor = local.enable_service_monitor
-  target_revision        = local.target_revision
-  project_source_repo    = local.project_source_repo
-  metrics_storage = {
-    bucket_name = local.minio_config.buckets.1.name
-    endpoint    = module.minio.endpoint
-    access_key  = local.minio_config.users.1.accessKey
-    secret_key  = local.minio_config.users.1.secretKey
-  }
-  thanos = {
-    oidc = module.oidc.oidc
-  }
-  dependency_ids = {
-    argocd       = module.argocd_bootstrap.id
-    traefik      = module.traefik.id
-    cert-manager = module.cert-manager.id
-    minio        = module.minio.id
-    keycloak     = module.keycloak.id
-    oidc         = module.oidc.id
-  }
-}
+# module "thanos" {
+#   source                 = "./modules/thanos/kind"
+#   cluster_name           = local.cluster_name
+#   base_domain            = local.base_domain
+#   subdomain              = local.subdomain
+#   cluster_issuer         = local.cluster_issuer
+#   argocd_project         = local.cluster_name
+#   enable_service_monitor = local.enable_service_monitor
+#   target_revision        = local.target_revision
+#   project_source_repo    = local.project_source_repo
+#   metrics_storage = {
+#     bucket_name = local.minio_config.buckets.1.name
+#     endpoint    = module.minio.endpoint
+#     access_key  = local.minio_config.users.1.accessKey
+#     secret_key  = local.minio_config.users.1.secretKey
+#   }
+#   thanos = {
+#     oidc = module.oidc.oidc
+#   }
+#   dependency_ids = {
+#     argocd       = module.argocd_bootstrap.id
+#     traefik      = module.traefik.id
+#     cert-manager = module.cert-manager.id
+#     minio        = module.minio.id
+#     keycloak     = module.keycloak.id
+#     oidc         = module.oidc.id
+#   }
+# }
 
-module "kube-prometheus-stack" {
-  source              = "./modules/kube-prometheus-stack/kind"
-  cluster_name        = local.cluster_name
-  base_domain         = local.base_domain
-  subdomain           = local.subdomain
-  cluster_issuer      = local.cluster_issuer
-  argocd_project      = local.cluster_name
-  target_revision     = local.target_revision
-  project_source_repo = local.project_source_repo
-  metrics_storage_main = {
-    bucket_name = local.minio_config.buckets.1.name
-    endpoint    = module.minio.endpoint
-    access_key  = local.minio_config.users.1.accessKey
-    secret_key  = local.minio_config.users.1.secretKey
-  }
-  prometheus = {
-    oidc = module.oidc.oidc
-  }
-  alertmanager = {
-    oidc = module.oidc.oidc
-  }
-  grafana = {
-    oidc = module.oidc.oidc
-  }
-  dependency_ids = {
-    traefik      = module.traefik.id
-    cert-manager = module.cert-manager.id
-    minio        = module.minio.id
-    oidc         = module.oidc.id
-  }
-}
+# module "kube-prometheus-stack" {
+#   source              = "./modules/kube-prometheus-stack/kind"
+#   cluster_name        = local.cluster_name
+#   base_domain         = local.base_domain
+#   subdomain           = local.subdomain
+#   cluster_issuer      = local.cluster_issuer
+#   argocd_project      = local.cluster_name
+#   target_revision     = local.target_revision
+#   project_source_repo = local.project_source_repo
+#   metrics_storage_main = {
+#     bucket_name = local.minio_config.buckets.1.name
+#     endpoint    = module.minio.endpoint
+#     access_key  = local.minio_config.users.1.accessKey
+#     secret_key  = local.minio_config.users.1.secretKey
+#   }
+#   prometheus = {
+#     oidc = module.oidc.oidc
+#   }
+#   alertmanager = {
+#     oidc = module.oidc.oidc
+#   }
+#   grafana = {
+#     oidc = module.oidc.oidc
+#   }
+#   dependency_ids = {
+#     traefik      = module.traefik.id
+#     cert-manager = module.cert-manager.id
+#     minio        = module.minio.id
+#     oidc         = module.oidc.id
+#   }
+# }
 
 # module "spark" {
 #   source                 = "./modules/spark"
@@ -574,6 +574,7 @@ module "argocd" {
   cluster_name             = local.cluster_name
   subdomain                = local.subdomain
   cluster_issuer           = local.cluster_issuer
+  enable_service_monitor   = local.enable_service_monitor
   server_secretkey         = module.argocd_bootstrap.argocd_server_secretkey
   accounts_pipeline_tokens = module.argocd_bootstrap.argocd_accounts_pipeline_tokens
   argocd_project           = local.cluster_name
@@ -599,10 +600,10 @@ module "argocd" {
     EOT
   }
   dependency_ids = {
-    traefik               = module.traefik.id
-    cert-manager          = module.cert-manager.id
-    oidc                  = module.oidc.id
-    kube-prometheus-stack = module.kube-prometheus-stack.id
+    traefik      = module.traefik.id
+    cert-manager = module.cert-manager.id
+    oidc         = module.oidc.id
+    # kube-prometheus-stack = module.kube-prometheus-stack.id
   }
 }
 
