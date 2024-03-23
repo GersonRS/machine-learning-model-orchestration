@@ -4,10 +4,10 @@ locals {
 
   helm_values = [{
     ray-cluster = {
-      image = {
-        repository = "gersonrs/ray-ml"
-        tag        = "v1"
-      }
+      # image = {
+      #   repository = "gersonrs/ray-ml"
+      #   tag        = "v1"
+      # }
 
       head = {
         # containerEnv = []

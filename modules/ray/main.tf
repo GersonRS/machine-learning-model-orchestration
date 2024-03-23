@@ -67,6 +67,7 @@ resource "argocd_application" "operator-crds" {
     destination {
       name      = var.destination_cluster
       namespace = var.namespace
+      # server    = "https://kubernetes.default.svc"
     }
 
     sync_policy {
@@ -188,7 +189,8 @@ resource "argocd_application" "this" {
       path            = "charts/ray-cluster"
       target_revision = var.target_revision
       helm {
-        values = data.utils_deep_merge_yaml.values.output
+        release_name = "ray-cluster"
+        values       = data.utils_deep_merge_yaml.values.output
       }
     }
 
@@ -229,13 +231,13 @@ resource "null_resource" "this" {
   ]
 }
 
-# data "kubernetes_service" "ray" {
-#   metadata {
-#     name      = "ray-kuberay-head-svc"
-#     namespace = var.namespace
-#   }
+data "kubernetes_service" "ray" {
+  metadata {
+    name      = "ray-cluster-kuberay-head-svc"
+    namespace = var.namespace
+  }
 
-#   depends_on = [
-#     null_resource.this
-#   ]
-# }
+  depends_on = [
+    resource.null_resource.this
+  ]
+}

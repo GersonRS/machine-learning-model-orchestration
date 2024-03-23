@@ -1,0 +1,35 @@
+---
+{{ if .Values.ray-cluster.ingress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ray-cluster
+  {{- with .Values.ray-cluster.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  rules:
+    {{- range .Values.ray-cluster.ingress.hosts }}
+    - host: {{ .host | quote }}
+      http:
+        paths:
+        - path: {{ .path | quote }}
+          pathType: Prefix
+          backend:
+            service:
+              name: ray-cluster-kuberay-head-svc
+              port:
+                number: 8265
+    {{- end }}
+  {{- if .Values.ray-cluster.ingress.tls }}
+  tls:
+    {{- range .Values.ray-cluster.ingress.tls }}
+    - hosts:
+        {{- range .hosts }}
+        - {{ . | quote }}
+        {{- end }}
+      secretName: {{ .secretName }}
+    {{- end }}
+  {{- end }}
+{{ end }}
