@@ -38,62 +38,65 @@ data "utils_deep_merge_yaml" "values" {
   input = [for i in concat(local.helm_values, var.helm_values) : yamlencode(i)]
 }
 
-# resource "argocd_application" "operator-crds" {
-#   metadata {
-#     name      = var.destination_cluster != "in-cluster" ? "ray-operator-crds-${var.destination_cluster}" : "ray-operator-crds"
-#     namespace = var.argocd_namespace
-#     labels = merge({
-#       "application" = "ray-operator-crds"
-#       "cluster"     = var.destination_cluster
-#     }, var.argocd_labels)
-#   }
+resource "argocd_application" "operator-crds" {
+  metadata {
+    name      = var.destination_cluster != "in-cluster" ? "ray-operator-crds-${var.destination_cluster}" : "ray-operator-crds"
+    namespace = var.argocd_namespace
+    labels = merge({
+      "application" = "ray-operator-crds"
+      "cluster"     = var.destination_cluster
+    }, var.argocd_labels)
+  }
 
-#   timeouts {
-#     create = "15m"
-#     delete = "15m"
-#   }
+  timeouts {
+    create = "15m"
+    delete = "15m"
+  }
 
-#   wait = var.app_autosync == { "allow_empty" = tobool(null), "prune" = tobool(null), "self_heal" = tobool(null) } ? false : true
+  wait = var.app_autosync == { "allow_empty" = tobool(null), "prune" = tobool(null), "self_heal" = tobool(null) } ? false : true
 
-#   spec {
-#     project = var.argocd_project == null ? argocd_project.this[0].metadata.0.name : var.argocd_project
+  spec {
+    project = var.argocd_project == null ? argocd_project.this[0].metadata.0.name : var.argocd_project
 
-#     source {
-#       repo_url        = var.project_source_repo
-#       path            = "charts/kuberay-operator/crds"
-#       target_revision = var.target_revision
-#     }
+    source {
+      repo_url        = var.project_source_repo
+      path            = "charts/kuberay-operator/crds"
+      target_revision = var.target_revision
+    }
 
-#     destination {
-#       name      = var.destination_cluster
-#       namespace = var.namespace
-#     }
+    destination {
+      name      = var.destination_cluster
+      namespace = var.namespace
+    }
 
-#     sync_policy {
-#       dynamic "automated" {
-#         for_each = toset(var.app_autosync == { "allow_empty" = tobool(null), "prune" = tobool(null), "self_heal" = tobool(null) } ? [] : [var.app_autosync])
-#         content {
-#           prune       = automated.value.prune
-#           self_heal   = automated.value.self_heal
-#           allow_empty = automated.value.allow_empty
-#         }
-#       }
+    sync_policy {
+      dynamic "automated" {
+        for_each = toset(var.app_autosync == { "allow_empty" = tobool(null), "prune" = tobool(null), "self_heal" = tobool(null) } ? [] : [var.app_autosync])
+        content {
+          prune       = automated.value.prune
+          self_heal   = automated.value.self_heal
+          allow_empty = automated.value.allow_empty
+        }
+      }
 
-#       retry {
-#         backoff {
-#           duration     = "20s"
-#           max_duration = "2m"
-#           factor       = "2"
-#         }
-#         limit = "0"
-#       }
-#     }
-#   }
+      retry {
+        backoff {
+          duration     = "20s"
+          max_duration = "2m"
+          factor       = "2"
+        }
+        limit = "0"
+      }
+      sync_options = [
+        "Replace=true"
+      ]
+    }
+  }
 
-#   depends_on = [
-#     resource.null_resource.dependencies,
-#   ]
-# }
+  depends_on = [
+    resource.null_resource.dependencies,
+  ]
+}
 
 resource "argocd_application" "operator" {
   metadata {
@@ -121,6 +124,7 @@ resource "argocd_application" "operator" {
       target_revision = var.target_revision
       helm {
         release_name = "kuberay-operator"
+        skip_crds    = true
       }
     }
 
@@ -155,73 +159,73 @@ resource "argocd_application" "operator" {
   }
 
   depends_on = [
-    resource.null_resource.dependencies
+    resource.argocd_application.operator-crds
   ]
 }
 
-# resource "argocd_application" "this" {
-#   metadata {
-#     name      = var.destination_cluster != "in-cluster" ? "ray-${var.destination_cluster}" : "ray"
-#     namespace = var.argocd_namespace
-#     labels = merge({
-#       "application" = "ray"
-#       "cluster"     = var.destination_cluster
-#     }, var.argocd_labels)
-#   }
+resource "argocd_application" "this" {
+  metadata {
+    name      = var.destination_cluster != "in-cluster" ? "ray-${var.destination_cluster}" : "ray"
+    namespace = var.argocd_namespace
+    labels = merge({
+      "application" = "ray"
+      "cluster"     = var.destination_cluster
+    }, var.argocd_labels)
+  }
 
-#   timeouts {
-#     create = "15m"
-#     delete = "15m"
-#   }
+  timeouts {
+    create = "15m"
+    delete = "15m"
+  }
 
-#   wait = var.app_autosync == { "allow_empty" = tobool(null), "prune" = tobool(null), "self_heal" = tobool(null) } ? false : true
+  wait = var.app_autosync == { "allow_empty" = tobool(null), "prune" = tobool(null), "self_heal" = tobool(null) } ? false : true
 
-#   spec {
-#     project = var.argocd_project == null ? argocd_project.this[0].metadata.0.name : var.argocd_project
+  spec {
+    project = var.argocd_project == null ? argocd_project.this[0].metadata.0.name : var.argocd_project
 
-#     source {
-#       repo_url        = var.project_source_repo
-#       path            = "charts/ray-cluster"
-#       target_revision = var.target_revision
-#       helm {
-#         values = data.utils_deep_merge_yaml.values.output
-#       }
-#     }
+    source {
+      repo_url        = var.project_source_repo
+      path            = "charts/ray-cluster"
+      target_revision = var.target_revision
+      helm {
+        values = data.utils_deep_merge_yaml.values.output
+      }
+    }
 
-#     destination {
-#       name      = var.destination_cluster
-#       namespace = var.namespace
-#     }
+    destination {
+      name      = var.destination_cluster
+      namespace = var.namespace
+    }
 
-#     sync_policy {
-#       dynamic "automated" {
-#         for_each = toset(var.app_autosync == { "allow_empty" = tobool(null), "prune" = tobool(null), "self_heal" = tobool(null) } ? [] : [var.app_autosync])
-#         content {
-#           prune       = automated.value.prune
-#           self_heal   = automated.value.self_heal
-#           allow_empty = automated.value.allow_empty
-#         }
-#       }
+    sync_policy {
+      dynamic "automated" {
+        for_each = toset(var.app_autosync == { "allow_empty" = tobool(null), "prune" = tobool(null), "self_heal" = tobool(null) } ? [] : [var.app_autosync])
+        content {
+          prune       = automated.value.prune
+          self_heal   = automated.value.self_heal
+          allow_empty = automated.value.allow_empty
+        }
+      }
 
-#       retry {
-#         backoff {
-#           duration     = "20s"
-#           max_duration = "2m"
-#           factor       = "2"
-#         }
-#         limit = "5"
-#       }
-#     }
-#   }
+      retry {
+        backoff {
+          duration     = "20s"
+          max_duration = "2m"
+          factor       = "2"
+        }
+        limit = "5"
+      }
+    }
+  }
 
-#   depends_on = [
-#     resource.argocd_application.operator,
-#   ]
-# }
+  depends_on = [
+    resource.argocd_application.operator,
+  ]
+}
 
 resource "null_resource" "this" {
   depends_on = [
-    resource.argocd_application.operator,
+    resource.argocd_application.this,
   ]
 }
 
