@@ -3,16 +3,16 @@ output "id" {
   value       = resource.null_resource.this.id
 }
 
-output "cluster_dns" {
-  description = "Ray cluster dns"
-  value       = "ray-kuberay-head-svc.${var.namespace}.svc.cluster.local"
-}
-output "cluster_ip" {
-  description = "Ray cluster ip internal"
-  value       = data.kubernetes_service.ray.spec[0].cluster_ip
-}
+# output "cluster_dns" {
+#   description = "Ray cluster dns"
+#   value       = "ray-kuberay-head-svc.${var.namespace}.svc.cluster.local"
+# }
+# output "cluster_ip" {
+#   description = "Ray cluster ip internal"
+#   value       = data.kubernetes_service.ray.spec[0].cluster_ip
+# }
 
-output "endpoint" {
-  description = "Ray endpoint external"
-  value       = local.domain_full
-}
+# output "endpoint" {
+#   description = "Ray endpoint external"
+#   value       = local.domain_full
+# }
