@@ -6,4 +6,3 @@ dependencies:
   - name: kuberay-operator
     repository: https://ray-project.github.io/kuberay-helm/
     version: "*.*.*"
-    skipCRDs: true
