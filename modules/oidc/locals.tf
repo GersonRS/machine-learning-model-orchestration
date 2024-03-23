@@ -13,5 +13,6 @@ locals {
       "--insecure-oidc-skip-issuer-verification=true",
       "--ssl-insecure-skip-verify=true",
     ] : []
+    fingerprint = split("=", data.external.fingerprint_generator.result.fingerprint)[1]
   }
 }

@@ -40,6 +40,9 @@ locals {
   helm_values = [{
     gitlab = {
       global = {
+        monitoring = {
+          enabled = var.enable_service_monitor
+        }
         appConfig = {
           object_store = {
             enabled = true
@@ -100,6 +103,9 @@ locals {
       nginx-ingress = {
         enabled = false
       }
+      nginx-ingress-geo = {
+        enabled = false
+      }
       prometheus = {
         install = false
       }
@@ -136,6 +142,9 @@ locals {
           minReplicas = 1
           maxReplicas = 1
         }
+      }
+      upgradeCheck = {
+        enabled = false
       }
     }
   }]
