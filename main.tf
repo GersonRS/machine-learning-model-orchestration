@@ -100,19 +100,19 @@ module "cert-manager" {
 #   }
 # }
 
-# module "postgresql" {
-#   source                 = "./modules/postgresql"
-#   cluster_name           = local.cluster_name
-#   base_domain            = local.base_domain
-#   cluster_issuer         = local.cluster_issuer
-#   argocd_project         = local.cluster_name
-#   enable_service_monitor = local.enable_service_monitor
-#   target_revision        = local.target_revision
-#   project_source_repo    = local.project_source_repo
-#   dependency_ids = {
-#     argocd = module.argocd_bootstrap.id
-#   }
-# }
+module "postgresql" {
+  source                 = "./modules/postgresql"
+  cluster_name           = local.cluster_name
+  base_domain            = local.base_domain
+  cluster_issuer         = local.cluster_issuer
+  argocd_project         = local.cluster_name
+  enable_service_monitor = local.enable_service_monitor
+  target_revision        = local.target_revision
+  project_source_repo    = local.project_source_repo
+  dependency_ids = {
+    argocd = module.argocd_bootstrap.id
+  }
+}
 
 module "keycloak" {
   source              = "./modules/keycloak"
@@ -416,35 +416,35 @@ module "minio" {
 #   }
 # }
 
-# module "mlflow" {
-#   source                 = "./modules/mlflow"
-#   cluster_name           = local.cluster_name
-#   base_domain            = local.base_domain
-#   subdomain              = local.subdomain
-#   cluster_issuer         = local.cluster_issuer
-#   argocd_project         = local.cluster_name
-#   enable_service_monitor = local.enable_service_monitor
-#   target_revision        = local.target_revision
-#   project_source_repo    = local.project_source_repo
-#   storage = {
-#     bucket_name       = "mlflow"
-#     endpoint          = module.minio.endpoint
-#     access_key        = module.minio.minio_root_user_credentials.username
-#     secret_access_key = module.minio.minio_root_user_credentials.password
-#   }
-#   database = {
-#     user     = module.postgresql.credentials.user
-#     password = module.postgresql.credentials.password
-#     database = "mlflow"
-#     service  = module.postgresql.cluster_dns
-#   }
-#   dependency_ids = {
-#     argocd     = module.argocd_bootstrap.id
-#     traefik    = module.traefik.id
-#     minio      = module.minio.id
-#     postgresql = module.postgresql.id
-#   }
-# }
+module "mlflow" {
+  source                 = "./modules/mlflow"
+  cluster_name           = local.cluster_name
+  base_domain            = local.base_domain
+  subdomain              = local.subdomain
+  cluster_issuer         = local.cluster_issuer
+  argocd_project         = local.cluster_name
+  enable_service_monitor = local.enable_service_monitor
+  target_revision        = local.target_revision
+  project_source_repo    = local.project_source_repo
+  storage = {
+    bucket_name       = "mlflow"
+    endpoint          = module.minio.endpoint
+    access_key        = module.minio.minio_root_user_credentials.username
+    secret_access_key = module.minio.minio_root_user_credentials.password
+  }
+  database = {
+    user     = module.postgresql.credentials.user
+    password = module.postgresql.credentials.password
+    database = "mlflow"
+    service  = module.postgresql.cluster_dns
+  }
+  dependency_ids = {
+    argocd     = module.argocd_bootstrap.id
+    traefik    = module.traefik.id
+    minio      = module.minio.id
+    postgresql = module.postgresql.id
+  }
+}
 
 module "ray" {
   source                 = "./modules/ray"
@@ -462,45 +462,45 @@ module "ray" {
   }
 }
 
-# module "jupyterhub" {
-#   source                 = "./modules/jupyterhub"
-#   cluster_name           = local.cluster_name
-#   base_domain            = local.base_domain
-#   subdomain              = local.subdomain
-#   cluster_issuer         = local.cluster_issuer
-#   argocd_project         = local.cluster_name
-#   enable_service_monitor = local.enable_service_monitor
-#   target_revision        = local.target_revision
-#   project_source_repo    = local.project_source_repo
-#   oidc                   = module.oidc.oidc
-#   storage = {
-#     bucket_name       = "jupyterhub"
-#     endpoint          = module.minio.endpoint
-#     access_key        = module.minio.minio_root_user_credentials.username
-#     secret_access_key = module.minio.minio_root_user_credentials.password
-#   }
-#   database = {
-#     user     = module.postgresql.credentials.user
-#     password = module.postgresql.credentials.password
-#     database = "jupyterhub"
-#     endpoint = module.postgresql.cluster_dns
-#   }
-#   mlflow = {
-#     endpoint = module.mlflow.cluster_dns
-#   }
-#   # ray = {
-#   #   endpoint = module.ray.cluster_dns
-#   # }
-#   dependency_ids = {
-#     argocd     = module.argocd_bootstrap.id
-#     traefik    = module.traefik.id
-#     oidc       = module.oidc.id
-#     minio      = module.minio.id
-#     postgresql = module.postgresql.id
-#     mlflow     = module.mlflow.id
-#     # ray        = module.ray.id
-#   }
-# }
+module "jupyterhub" {
+  source                 = "./modules/jupyterhub"
+  cluster_name           = local.cluster_name
+  base_domain            = local.base_domain
+  subdomain              = local.subdomain
+  cluster_issuer         = local.cluster_issuer
+  argocd_project         = local.cluster_name
+  enable_service_monitor = local.enable_service_monitor
+  target_revision        = local.target_revision
+  project_source_repo    = local.project_source_repo
+  oidc                   = module.oidc.oidc
+  storage = {
+    bucket_name       = "jupyterhub"
+    endpoint          = module.minio.endpoint
+    access_key        = module.minio.minio_root_user_credentials.username
+    secret_access_key = module.minio.minio_root_user_credentials.password
+  }
+  database = {
+    user     = module.postgresql.credentials.user
+    password = module.postgresql.credentials.password
+    database = "jupyterhub"
+    endpoint = module.postgresql.cluster_dns
+  }
+  mlflow = {
+    endpoint = module.mlflow.cluster_dns
+  }
+  ray = {
+    endpoint = module.ray.cluster_ip
+  }
+  dependency_ids = {
+    argocd     = module.argocd_bootstrap.id
+    traefik    = module.traefik.id
+    oidc       = module.oidc.id
+    minio      = module.minio.id
+    postgresql = module.postgresql.id
+    mlflow     = module.mlflow.id
+    ray        = module.ray.id
+  }
+}
 
 # module "airflow" {
 #   source                 = "./modules/airflow"

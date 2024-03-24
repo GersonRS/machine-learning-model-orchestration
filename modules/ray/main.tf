@@ -231,13 +231,13 @@ resource "null_resource" "this" {
   ]
 }
 
-# data "kubernetes_service" "ray" {
-#   metadata {
-#     name      = "ray-cluster-kuberay-head-svc"
-#     namespace = var.namespace
-#   }
+data "kubernetes_service" "ray" {
+  metadata {
+    name      = "ray-cluster-kuberay-head-svc"
+    namespace = var.namespace
+  }
 
-#   depends_on = [
-#     resource.null_resource.this
-#   ]
-# }
+  depends_on = [
+    resource.null_resource.this
+  ]
+}

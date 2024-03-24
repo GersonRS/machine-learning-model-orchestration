@@ -4,10 +4,10 @@ locals {
 
   helm_values = [{
     ray-cluster = {
-      # image = {
-      #   repository = "gersonrs/ray-ml"
-      #   tag        = "v1"
-      # }
+      image = {
+        repository = "gersonrs/ray"
+        tag        = "v1.0.3"
+      }
 
       head = {
         # containerEnv = []
@@ -42,11 +42,7 @@ locals {
       }
     }
     ingress = {
-      # -- Specifies if you want to create an ingress access
-      enabled : true
-      # -- New style ingress class name. Only possible if you use K8s 1.18.0 or later version
-      className : "traefik"
-      # -- Additional ingress annotations
+      enabled = true
       annotations = {
         "cert-manager.io/cluster-issuer"                   = "${var.cluster_issuer}"
         "traefik.ingress.kubernetes.io/router.entrypoints" = "websecure"
@@ -55,21 +51,14 @@ locals {
       hosts = [
         {
           host = local.domain
-          paths = [{
-            path     = "/"
-            pathType = "ImplementationSpecific"
-          }]
+          path = "/"
         },
         {
           host = local.domain_full
-          paths = [{
-            path     = "/"
-            pathType = "ImplementationSpecific"
-          }]
-        }
+          path = "/"
+        },
       ]
-      # -- Ingress tls configuration for https access
-      tls : [{
+      tls = [{
         secretName = "ray-ingres-tls"
         hosts = [
           local.domain,
